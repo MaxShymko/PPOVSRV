@@ -1,5 +1,5 @@
 -----------------------------  laba3.pjt - Debug  -----------------------------
-"c:\ti\c5400\cgtools\bin\cl500" -g -q -fr"C:/ti/myprojects/laba3/Debug" -d"_DEBUG" -@"Debug.lkf" "main.asm"
+"c:\ti\c5400\cgtools\bin\cl500" -g -q -fr"C:/ti/myprojects/Laba_3/Debug" -d"_DEBUG" -@"Debug.lkf" "main.asm"
 <main.asm>
 
 Warning: The project has no cmd file while the Text Linker is selected
