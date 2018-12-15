@@ -1,3 +1,4 @@
+
 		.mmregs
 			
 		.def _c_int00
@@ -14,6 +15,8 @@ C1      .set 32733
 k		.set 17
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1-а€ лаба(рисование 3-ех синусоид, в качестве входного сигнала);;;;;;;;;;;;;;;
+
+		SSBX OVM
 
 ;загрузка нач значений в вспомогательные регистры
 		xor     A,A
@@ -91,7 +94,7 @@ block:
 		nop
 	
 		;;;;;;;;;;;;;;;;;;;;;;;;;‘»Ћ№“–;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-					
+		xor B,B			
 		stm     #2,AR7 ; 3 каскада
 
 main_loop:		
@@ -102,6 +105,8 @@ main_loop:
 		stm 	#filter-2, AR4	;y[i]
 		rpt    	#1
 		st      #0, *AR4+	
+		stm		#sinus-2, AR5	;результат Xv
+		stm 	#filter-2, AR4	;y[i]
 					
 		stm 	#N*3-1, brc
 	
@@ -110,10 +115,11 @@ main_loop:
  		RSBX OVA ; сброс бита переполнени€
 		
 		stm     	#koef, AR3
-		mvdm        step,AR0
+		stlm        B,AR0
 		nop
 		nop
-		ld          *AR3+0,A	
+		ld          *AR3+0,A
+		
 		st          #2,AR0
 		
 		xor  		A,A
@@ -128,16 +134,16 @@ main_loop:
 		ld  *AR5-0,A	
 IIR:
 		nop
-		xor     A,A
-		ld      AR7,B
-		sub     #1,B
-		bc      go,beq
-		add     #5,A
+		xor		B,B
+		ld      AR7,A
+		sub     #1,A
+		bc      go,aeq
+		add     #5,B
 		b       go_2
 go:     
-		add     #10,A
+		add     #10,B
 go_2:
-		stl     A,step
+		stl     B,step
 		stm		#sinus, AR5	;результат X	
 		stm 	#filter, AR4	;y[i]
 		rpt    	#N*3-1	
@@ -183,10 +189,9 @@ sqrt_find:
 		
 			
 		.data
-		.align	1024
+		.align	2048
 sinus 	.space (N*3+2)*16         ;выделение пам€ти под синусоиду/косинусоиду
 filter  .space N*3*16		  	;под фильтр
 output  .space 60*16 
 koef	
 		.include  	koef.asm
-		
