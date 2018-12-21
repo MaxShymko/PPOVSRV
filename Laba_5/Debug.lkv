@@ -1,0 +1,2 @@
+-z -q -c -o"./Debug/Laba_5.out" -x -i"c:/ti/c5400/bios/lib" -i"c:/ti/c5400/rtdx/lib" -i"c:/ti/c5400/cgtools/lib"
+"C:\ti\myprojects\Laba_5\Debug\main.obj"

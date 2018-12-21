@@ -4,20 +4,17 @@
 		.text
 		
 _c_int00:
-;задание начальных значений для рассчета синусоиды и косинусоиды
-step    .word 0	
+
 N 		.set 272 
 Sk 		.set 0
 Ck		.set 32767
 S1		.set 1513
 C1      .set 32733
+k       .set 68
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1-ая лаба(рисование 3-ех синусоид, в качестве входного сигнала);;;;;;;;;;;;;;;
-
-;загрузка нач значений в вспомогательные регистры
-		st      #68,AR0
+		st      #k,AR0
 		stm		#sinus, AR5
-		SSBX 	OVM ; нет коррекции переполнения
+		SSBX 	OVM
 GAR:	
 		st     	#Sk,AR1
 		st      #Ck,AR2
@@ -26,7 +23,7 @@ GAR:
 		st      #N,AR6
 		st      #0,AR7
 		ld      AR0,A
-		sub     #68,A
+		sub     #k,A
 		neg     A
 		stlm	A, BRC	
 		nop			
@@ -79,10 +76,10 @@ block:
   		banz    GAR,*AR0-
   		nop	
 	
-		;;;;;;;;;;;;;;;;;;;;;;;;;ФИЛЬТР;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-					
+		;filter
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				
 		stm     #2,AR7
-
+		xor     B,B
 main_loop:		
 		
 		stm		#sinus-2, AR5	;результат X
@@ -91,15 +88,16 @@ main_loop:
 		stm 	#filter-2, AR4	;y[i]
 		rptz    A,#2
 		stl     A,*AR4+	
-					
-		stm 	#18495, brc
+		stm		#sinus-2, AR5
+		stm 	#filter-2, AR4			
+		stm 	#N*k-1, brc
 	
 		rptb IIR
 		
- 		RSBX OVA ; сброс бита переполнения
+ 		RSBX OVA
 		
 		stm     	#koef, AR3
-		mvdm        step,AR0
+		stlm        B,AR0
 		nop
 		nop
 		ld          *AR3+0,A	
@@ -117,33 +115,25 @@ main_loop:
 		ld  *AR5-0,A	
 IIR:
 		nop
-		xor     A,A
-		ld      AR7,B
-		sub     #1,B
-		bc      go,beq
-		add     #5,A
-		b       go_2
-go:     
-		add     #10,A
-go_2:
-		stl     A,step
+		add     #5,B
 		stm		#sinus, AR5	;результат X	
 		stm 	#filter, AR4	;y[i]
-		rpt    	#18495	
+		rpt    	#N*k-1	
 		mvdd    *AR4+,*AR5+	
 		banz    main_loop,*AR7-
 		nop	
 		nop
 		nop
 		
-		;;;;;;;;;;;;;;;АЧХ;;;;;;;;;;;;;;;;;;;
+		;AFC
+		
 		xor     A,A
-		stm 	#filter+136, AR4;y[i]
-		stm 	#output, AR2	;y[i] 
-		st      #136,AR0
-		st      #68,AR7
-AFC:
-		st 	    135, brc
+		stm 	#filter+N/2, AR4
+		stm 	#AFC_arr, AR2 
+		st      #N/2,AR0
+		st      #k,AR7
+AFC_loop:
+		st 	    N/2-1, brc
 		rptb 	AFC_point
 		squr 	*AR4+,B
 		add     B,-15,A	
@@ -153,29 +143,27 @@ AFC_point:
 		mpy 	#482,A
 		sfta    A,-8
 		
-		st      #0,*AR3	  ;Первое приближение корня из A	
-sqrt_block:			     
-		mas 	*AR3,*AR3,A,B  	
+		st      #0,*AR3
+sqrt_block:
+		mas 	*AR3,*AR3,A,B	
 		bc      sqrt_find,bleq
 		addm    #1,*AR3
 		b       sqrt_block
 sqrt_find:
 		nop	
 		
-		mpy 	#181, A	
+		mpy 	#149, A	
 		stl     A,*AR2+
 		
 		ld		*AR4+0,A
 		xor     A,A     
-		banz    AFC,*AR7-
+		banz    AFC_loop,*AR7-
 		nop
 		
 			
 		.data
 koef	
 		.include  	koef.asm
-
-		.space 30*16
-sinus 	.space 18500*16         ;выделение памяти под синусоиду/косинусоиду
-filter  .space 18500*16		  	;под фильтр
-output  .space 68*16 
+sinus 	.space 18500*16
+filter  .space 18500*16
+AFC_arr	.space k*16 

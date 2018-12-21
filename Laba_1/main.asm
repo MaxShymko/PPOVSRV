@@ -5,10 +5,10 @@
 		
 _c_int00:
 
-N 		.set 136
-k		.set 17
-S1		.set 23170 ; sin(2pi/N*k)*32768
-C1      .set 23170
+N 		.set 256
+k		.set 1
+S1		.set 804 ; sin(2pi/N*k)*32768
+C1      .set 32758
 Sk 		.set 0
 Ck		.set 32767
 
@@ -68,7 +68,7 @@ cycle_1:
 flag:
 		nop
 		
-		ld      AR1, A
+		ld      AR2, A
 		stl     A, *AR5+
 		
 		banz    main_cycle, *AR6-	
