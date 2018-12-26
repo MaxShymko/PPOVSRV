@@ -10,9 +10,9 @@ N   	.word   1
 step    .word   128
 ;;;;;;;;инициализаци€;;;;;;;;;;;		
 		xor     B,B 
-		stm     #N_DBC-2,AR7
+		stm     #N_DBC*2-2,AR7
 		stm     #sinus,AR3
-		stm		#sinus_real, AR5 
+		stm		#output_r, AR5 
 		ld      *AR3+,A
 ;;;;;;;;инициализаци€;;;;;;;;;;;
 		
@@ -26,27 +26,26 @@ RADER:
 		ld      A,-1,A		;алгоритм –эйдера
 		sub     #N_DBC,A	;алгоритм –эйдера
 		sftl    B,1			;сдвиг позиции еще на 1 разр€д, чтобы узнать ее старший бит(бит —) 
-		bc     	RADER,C	;если в старшем разр€де 1, смотрим следующий бит
+		bc     	RADER,C		;если в старшем разр€де 1, смотрим следующий бит
 new_pos:
 		add     AR1,A		;узнаем новую позицию	
 		ld      A,15,B		;сохр€н€ем новую позицию в B
 		stlm    A,AR0		;загружаем ее в AR0
 		ld      *AR5+0,A	;устанавливаем указатель в новом массиве на adr+AR0
 		mvdd    *AR3+,*AR5  ;перенос значени€ из adr+1 старого массива в adr+AR0 нового массива
-		stm		#sinus_real, AR5 ;устанавливаем указатель в новом массиве на adr = 0
+		stm		#output_r, AR5 ;устанавливаем указатель в новом массиве на adr = 0
 		banz    DBC,*AR7-
 ;;;;;;;;;;;;DBC;;;;;;;;;;;;;;
 
 ;;;;;;;;инициализаци€;;;;;;;;;;;			
 		nop
-		stm		#sinus_imagine, AR3
-		stm		#sinus_real, AR5 
+		stm		#output_i, AR3
+		stm		#output_r, AR5 
 		stm     #SIN,AR4
 		stm		#COS, AR2 
 		ld      #N,DP
 		stm		#7, AR1 ; log(N_DBC)
 		ld      step,A
-		;stlm    A,BK
 		SUB     #1,A
 		stlm    A,AR7	
 		ld      N,A
@@ -57,19 +56,19 @@ new_pos:
 ;;;;;;;;начальна€ мнима€ часть;;;;;;;;	
 		rpt     #N_DBC*2-1
 		st      #0,*AR3+
-		stm		#sinus_imagine, AR3
+		stm		#output_i, AR3
 ;;;;;;;;начальна€ мнима€ часть;;;;;;;; 
 		nop			
-		;rpt     #128
+		;rpt     #N_DBC*2-1
 		;st      #32767,*AR5+
-		;stm	 #sinus_real, AR5
+		;stm	 #output_r, AR5
 																				
 block_step:		
 ;;;;;;;;;;;BPF;;;;;;;;;;;;;;;;;;;;	
 		stlm     A,BRC
 		nop
 		rptb     BPF
-		ld       *AR3+0,-1,A  	;A = PI	
+		ld       *AR3+0,-1,A  	;A = PI/2	
 		ld       *AR5+0,-1,A  	;A = PR/2
 		mpy      *AR5,*AR2,B
 		mac	 	 *AR3,*AR4,B,B	;B = QR*cosx+QI*sinx
@@ -79,7 +78,7 @@ block_step:
 		stl      A,*AR5+0		;PR = A
 		sub      B,A			;A = PR/2
 		neg      B				;B = -(QR*cosx+QI*sinx)
-		add      B,A			;B = PR/2-(QR*cosx+QI*sinx)/2
+		add      B,A			;A = PR/2-(QR*cosx+QI*sinx)/2
 		mpy      *AR3,*AR2,B
 		mas	 	 *AR5,*AR4,B,B	;B = QI*cosx-QR*sinx
 		sftl     B,-16			;B = (QI*cosx-QR*sinx)/2
@@ -125,34 +124,21 @@ BPF:
 		sfta    A,1
 		stl     A,N 
 		stlm    A,AR0
-		stm		#sinus_real, AR5 
-		stm		#sinus_imagine, AR3
+		stm		#output_r, AR5 
+		stm		#output_i, AR3
 		stm		#COS, AR2 
 		stm		#SIN, AR4 
 		sub     #1,A
 		banz    block_step,*AR1-
-		nop
-		nop
-		nop
-		
-		stm		#sinus_real, AR5
-		stm		#sinus_imagine, AR3
-		stm		#N_DBC*2-1, BRC
-		rptb	UNSCALE
-		ld 		*AR3, 1, A
-		stl		A, *AR3+
-		ld 		*AR5, 1, A
-		stl		A, *AR5+
-UNSCALE:
 		nop
 ;;;;;;;»зменение кол-ва n-точечных ƒѕ‘;;;;;;;		
 		nop
 		
 		;.align 512
 sinus 	.include SIN256.asm         ;выделение пам€ти под синусоиду
-sinus_real 
+output_r 
 		.space (N_DBC*2)*16
-sinus_imagine 
+output_i 
 		.space (N_DBC*2)*16
 SIN 	.include SIN256.asm         ;выделение пам€ти под синусоиду
 COS 	.include COS256.asm         ;выделение пам€ти под синусоиду

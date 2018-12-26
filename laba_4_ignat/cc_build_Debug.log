@@ -1,0 +1,13 @@
+--------------------------  laba_4_ignat.pjt - Debug  --------------------------
+"c:\ti\c5400\cgtools\bin\cl500" -g -q -fr"C:/ti/myprojects/laba_4_ignat/Debug" -d"_DEBUG" -@"Debug.lkf" "koef.asm"
+<koef.asm>
+
+"c:\ti\c5400\cgtools\bin\cl500" -g -q -fr"C:/ti/myprojects/laba_4_ignat/Debug" -d"_DEBUG" -@"Debug.lkf" "main.asm"
+<main.asm>
+
+Warning: The project has no cmd file while the Text Linker is selected
+"c:\ti\c5400\cgtools\bin\cl500" -@"Debug.lkf"
+<Linking>
+
+Build Complete,
+  0 Errors, 1 Warnings, 0 Remarks.
