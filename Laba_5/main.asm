@@ -57,11 +57,12 @@ new_pos:
 		rpt     #N_DBC*2-1
 		st      #0,*AR3+
 		stm		#output_i, AR3
-;;;;;;;;начальная мнимая часть;;;;;;;; 
-		nop			
-		;rpt     #N_DBC*2-1
-		;st      #32767,*AR5+
-		;stm	 #output_r, AR5
+		nop
+		
+		rpt     #N_DBC*2-1
+		st      #32768,*AR5+
+		stm		#output_r, AR5
+		nop
 																				
 block_step:		
 ;;;;;;;;;;;BPF;;;;;;;;;;;;;;;;;;;;	
@@ -134,11 +135,11 @@ BPF:
 ;;;;;;;Изменение кол-ва n-точечных ДПФ;;;;;;;		
 		nop
 		
-		;.align 512
-sinus 	.include SIN256.asm         ;выделение памяти под синусоиду
+		
+sinus 	.include SIN256.asm
 output_r 
 		.space (N_DBC*2)*16
 output_i 
 		.space (N_DBC*2)*16
-SIN 	.include SIN256.asm         ;выделение памяти под синусоиду
-COS 	.include COS256.asm         ;выделение памяти под синусоиду
+SIN 	.include SIN256.asm
+COS 	.include COS256.asm
